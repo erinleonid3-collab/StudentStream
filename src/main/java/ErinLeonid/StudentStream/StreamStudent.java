@@ -3,19 +3,20 @@ package ErinLeonid.StudentStream;
 import java.util.Comparator;
 import java.util.List;
 
+import static ErinLeonid.StudentStream.StudentConstant.LIMIT_SIZE;
+
 public class StreamStudent {
-    public static void processStudents(List<Student> students) {
+    public static void printBookYear(List<Student> students, Integer yearFound) {
+
         students.stream()
-                .peek(student -> System.out.println(student))
-                .map(student -> student.getBooks())
-                .flatMap(book -> book.stream())
-                .sorted(Comparator.comparingInt(Book::getPages)
-                        .thenComparing(Book::getTitle)
-                        .thenComparing(Book::getYear))
+                .peek(System.out::println)
+                .map(Student::getBooks)
+                .flatMap(List::stream)
+                .sorted(Comparator.comparingInt(Book::getPages))
                 .distinct()
-                .filter(book -> book.getYear() > 2000)
-                .limit(3)
-                .map(book -> book.getYear())
+                .filter(book -> book.getYear() > yearFound)
+                .limit(LIMIT_SIZE)
+                .map(Book::getYear)
                 .findFirst()
                 .ifPresentOrElse(
                         year -> System.out.println("Книга найдена. Год выпуска: " + year),

@@ -8,22 +8,19 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ErinLeonid.StudentStream.StudentConstant.BOOK_LIMIT;
+
 public class StudentLoader {
-
-
     public static List<Student> loadStudents(Path filePath) {
         List<Student> students = new ArrayList<>();
-
         try (BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
             String line;
 
             while ((line = reader.readLine()) != null) {
-
                 if (line.trim().isEmpty()) continue;
-                try {
-                    if (parseStudent(line).getBooks().size() < 5) continue;
-                    students.add(parseStudent(line));
 
+                try {
+                    students.add(parseStudent(line));
                 } catch (Exception e) {
                     System.err.println("Ошибка добавления строки: " + line);
                     e.printStackTrace();
@@ -37,7 +34,6 @@ public class StudentLoader {
     }
 
     private static Student parseStudent(String line) {
-
         List<Book> bookList = new ArrayList<>();
         String[] lineArray = line.trim().split("\\|", -1);
         String name = lineArray[0].trim();
@@ -48,6 +44,7 @@ public class StudentLoader {
             if (bookData.length != 3) {
                 continue;
             }
+
             try {
                 String title = bookData[0].trim();
                 int year = Integer.parseInt(bookData[1]);
@@ -55,10 +52,12 @@ public class StudentLoader {
                 if (title.isEmpty() || year < 0 || pages <= 0) continue;
                 bookList.add(new Book(title, year, pages));
             } catch (NumberFormatException e) {
-                System.err.println("Неккоректный формат чисел, пропущенна книга: " + bookData[0]);
+                System.err.println("Неккоректный формат чисел, пропущенна книга: " + bookData[0] + e.getMessage());
             }
         }
-
+        if (bookList.size() < BOOK_LIMIT) {
+            throw new InvalidFormatStudentException("У студента: " + name + " меньше 5 книг");
+        }
         return new Student(name, bookList);
 
     }
